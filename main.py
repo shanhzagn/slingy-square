@@ -1,4 +1,5 @@
 import pygame
+import math
 from sys import exit
 
 def position():
@@ -91,6 +92,7 @@ Timer = 0
 xpos = 0
 ypos = 0
 costume = 3
+distance = 0
 
 ARC = []
 
@@ -121,11 +123,6 @@ platforms = pygame.sprite.Group()
 
 #platforms.add(Platform(()))
 
-#background
-background = pygame.Surface((960,720))
-background.fill("white")
-background_rect = background.get_rect(topleft=(0,0))
-
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -133,7 +130,11 @@ while True:
             exit()
 
     #background
-    screen.blit(background,background_rect)
+    screen.fill("white")
+
+    #cursor
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+    distance = math.hypot(player_rect.centerx - mouse_x, player_rect.centery - mouse_y)
 
     #player
     if costume == 3:
@@ -148,5 +149,5 @@ while True:
         while AIRTIME > 0:
             ARC.append(PY)
 
-pygame.display.update()
+    pygame.display.update()
 clock.tick(60)
