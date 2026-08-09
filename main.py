@@ -33,9 +33,32 @@ def changexby(x):
         position()
 
 def changeyby(y):
-    print("a")
+    for i in range(abs(y)):
+        if y > 0:
+            PY = PY+1
+            position()
+            for platforms in Platform:
+                if player.rect.colliderect(platforms.rect):
+                    PY = PY-1
+                    SPEEDY = 0
+        if y < 0:
+            PY = PY-1
+            position()
+            for platforms in Platform:
+                if player.rect.colliderect(platforms.rect):
+                    costume = 1
+                    AIRTIME = 0
+                    PY = PY-1
+                    SPEEDY = 0
+        position()
+
+#def sling():
+#    if costume != 3:
+#        costume = costume+1
+#        SPEEDX =
 
 def frame():
+    #player
     if SPEEDX > 10:
         SPEEDX = SPEEDX-1
     elif SPEEDX > 5:
@@ -67,18 +90,24 @@ Time = 0
 Timer = 0
 xpos = 0
 ypos = 0
+costume = 3
 
-ARC = 0
+ARC = []
+
+pygame.init()
+screen = pygame.display.set_mode((960,720))
+pygame.display.set_caption("Slingy Square")
+clock = pygame.time.Clock()
 
 #player
 player = pygame.Surface((54,54))
 player.fill("blue")
 player_rect = player.get_rect(center=(0,0))
 
-pygame.init()
-screen = pygame.display.set_mode((960,720))
-pygame.display.set_caption("Slingy Square")
-clock = pygame.time.Clock()
+#cursor
+cursor = pygame.Surface((6,6))
+cursor.fill("yellow")
+cursor_rect = cursor.get_rect(center=(0,0))
 
 #platforms
 class Platform(pygame.sprite.Sprite):
@@ -92,11 +121,32 @@ platforms = pygame.sprite.Group()
 
 #platforms.add(Platform(()))
 
+#background
+background = pygame.Surface((960,720))
+background.fill("white")
+background_rect = background.get_rect(topleft=(0,0))
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+
+    #background
+    screen.blit(background,background_rect)
+
+    #player
+    if costume == 3:
+        player.fill("red")
+    elif costume == 2:
+        player.fill("mediumpurple")
+    elif costume == 1:
+        player.fill("blue")
+
+    ARC.clear()
+    if AIRTIME > 4:
+        while AIRTIME > 0:
+            ARC.append(PY)
 
 pygame.display.update()
 clock.tick(60)
