@@ -2,8 +2,30 @@ import pygame
 import math
 from sys import exit
 
+#variables
+PX = -600
+PY = 0
+slingx = 0
+slingy = 0
+SPEEDY = 0
+SPEEDX = 0
+AIRTIME = 0
+CAMX = 0
+CAMY = 0
+Time = 0
+Timer = 0
+xpos = 0
+ypos = 0
+costume = 3
+distance = 0
+holding = False
+slingcolour = "blue"
+
+ARC = []
+
+#functions
 def position():
-    player_rect = player.get_rect(center=(PX-CAMX,PY-CAMY))
+    player_rect = player.get_rect(center=(PX-CAMX+480,PY-CAMY+360))
 
 def changexby(x):
     for i in range(abs(x)):
@@ -34,67 +56,62 @@ def changexby(x):
         position()
 
 def changeyby(y):
+    global PY
     for i in range(abs(y)):
         if y > 0:
-            PY = PY+1
+            PY += 1
             position()
             for platforms in Platform:
                 if player.rect.colliderect(platforms.rect):
-                    PY = PY-1
+                    PY -= 1
                     SPEEDY = 0
         if y < 0:
-            PY = PY-1
+            PY -= 1
             position()
             for platforms in Platform:
                 if player.rect.colliderect(platforms.rect):
                     costume = 1
                     AIRTIME = 0
-                    PY = PY-1
+                    PY -= 1
                     SPEEDY = 0
         position()
 
-#def sling():
-#    if costume != 3:
-#        costume = costume+1
-#        SPEEDX =
+def sling():
+    if costume != 3:
+        costume = costume+1
+        SPEEDX = (round(slingx/8))*-1
+        SPEEDY = (round(slingy/8))*-1
+        if SPEEDX > 21:
+            SPEEDX = 22
+        if SPEEDY > 21:
+            SPEEDY = 22
+        if SPEEDX < -21:
+            SPEEDX = -22
+        if SPEEDY < -21:
+            SPEEDY = -22
 
 def frame():
+    global SPEEDX
+    global SPEEDY
     #player
     if SPEEDX > 10:
-        SPEEDX = SPEEDX-1
+        SPEEDX -= 1
     elif SPEEDX > 5:
-        SPEEDX = SPEEDX-0.5
+        SPEEDX -= 0.5
     elif SPEEDX > 0:
-        SPEEDX = SPEEDX-0.25
+        SPEEDX -= 0.25
     if SPEEDX < -10:
-        SPEEDX = SPEEDX+1
+        SPEEDX =+ 1
     elif SPEEDX < -5:
-        SPEEDX = SPEEDX+0.5
+        SPEEDX += 0.5
     elif SPEEDX < 0:
-        SPEEDX = SPEEDX+0.25
+        SPEEDX += 0.25
     if SPEEDY >= -12:
-        SPEEDY = SPEEDY-1
+        SPEEDY += 1
     changexby(SPEEDX)
     changeyby(SPEEDY)
     CAMX = PX
     CAMY = PY
-
-#variables
-PX = -600
-PY = 0
-SPEEDY = 0
-SPEEDX = 0
-AIRTIME = 0
-CAMX = 0
-CAMY = 0
-Time = 0
-Timer = 0
-xpos = 0
-ypos = 0
-costume = 3
-distance = 0
-
-ARC = []
 
 pygame.init()
 screen = pygame.display.set_mode((960,720))
@@ -107,8 +124,8 @@ player.fill("blue")
 player_rect = player.get_rect(center=(0,0))
 
 #cursor
-cursor = pygame.Surface((6,6))
-cursor.fill("yellow")
+cursor = pygame.Surface((12,12))
+cursor.fill("darkorange")
 cursor_rect = cursor.get_rect(center=(0,0))
 
 #platforms
@@ -129,20 +146,45 @@ while True:
             pygame.quit()
             exit()
 
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            holding = True
+        if event.type == pygame.MOUSEBUTTONUP:
+            holding = False
+
+        if holding:
+            slingx = cursor_rect.centerx
+            slingy = cursor_rect.centery
+            pygame.draw.line(screen,(slingcolour),player_rect.center,cursor_rect.center,5)
+
+
     #background
     screen.fill("white")
 
     #cursor
     mouse_x, mouse_y = pygame.mouse.get_pos()
     distance = math.hypot(player_rect.centerx - mouse_x, player_rect.centery - mouse_y)
+    cursor_rect = cursor.get_rect(center=(pygame.mouse.get_pos()))
+    screen.blit(cursor,cursor_rect)
 
     #player
     if costume == 3:
         player.fill("red")
+        slingcolour = "red"
     elif costume == 2:
         player.fill("mediumpurple")
+        slingcolour = "mediumpurple"
     elif costume == 1:
         player.fill("blue")
+        slingcolour = "blue"
+
+    AIRTIME = AIRTIME+1
+    frame()
+    CAMX = round(PX+(SPEEDX*-1),0)
+    CAMY = round(PY+(SPEEDY*-1),0)
+    position()
+
+
+    screen.blit(player,player_rect)
 
     ARC.clear()
     if AIRTIME > 4:
@@ -150,4 +192,4 @@ while True:
             ARC.append(PY)
 
     pygame.display.update()
-clock.tick(60)
+    clock.tick(60)
