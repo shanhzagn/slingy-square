@@ -25,31 +25,39 @@ ARC = []
 
 #functions
 def position():
+    global PX
+    global PY
+    global CAMX
+    global CAMY
     player_rect = player.get_rect(center=(PX-CAMX+480,PY-CAMY+360))
 
 def changexby(x):
+    global PX
+    global PY
+    global SPEEDX
+    global SPEEDY
     for i in range(abs(x)):
         if x > 0:
             PX = PX+1
             position()
-            for platforms in Platform:
-                if player.rect.colliderect(platforms.rect):
+            for platform in p:
+                if player.rect.colliderect(platform.rect):
                     PY = PY+1
                     position()
-                    for platforms in Platform:
-                        if player.rect.colliderect(platforms.rect):
+                    for platform in p:
+                        if player.rect.colliderect(platform.rect):
                             PY = PY-1
                             PX = PX-1
                             SPEEDX = round((SPEEDX/2),0)
         if x < 0:
             PX = PX-1
             position()
-            for platforms in Platform:
-                if player.rect.colliderect(platforms.rect):
+            for platform in p:
+                if player.rect.colliderect(platform.rect):
                     PY = PY+1
                     position()
-                    for platforms in Platform:
-                        if player.rect.colliderect(platforms.rect):
+                    for platform in p:
+                        if player.rect.colliderect(platform.rect):
                             PY = PY-1
                             PX = PX+1
                             SPEEDX = round((SPEEDX/2),0)
@@ -57,19 +65,22 @@ def changexby(x):
 
 def changeyby(y):
     global PY
+    global costume
+    global AIRTIME
+    global SPEEDY
     for i in range(abs(y)):
         if y > 0:
             PY += 1
             position()
-            for platforms in Platform:
-                if player.rect.colliderect(platforms.rect):
+            for platform in p:
+                if player.rect.colliderect(p.rect):
                     PY -= 1
                     SPEEDY = 0
         if y < 0:
             PY -= 1
             position()
-            for platforms in Platform:
-                if player.rect.colliderect(platforms.rect):
+            for platform in p:
+                if player.rect.colliderect(p.rect):
                     costume = 1
                     AIRTIME = 0
                     PY -= 1
@@ -77,6 +88,9 @@ def changeyby(y):
         position()
 
 def sling():
+    global costume
+    global SPEEDX
+    global SPEEDY
     if costume != 3:
         costume = costume+1
         SPEEDX = (round(slingx/8))*-1
@@ -93,6 +107,10 @@ def sling():
 def frame():
     global SPEEDX
     global SPEEDY
+    global CAMX
+    global CAMY
+    global PX
+    global PY
     #player
     if SPEEDX > 10:
         SPEEDX -= 1
@@ -136,60 +154,61 @@ class Platform(pygame.sprite.Sprite):
         self.image.fill(colour)
         self.rect = self.image.get_rect(center=(x,y))
 
-platforms = pygame.sprite.Group()
+p = pygame.sprite.Group()
 
-#platforms.add(Platform(()))
+p1 = Platform(100,100,100,100,"black")
+p.add(p1)
 
 while True:
-    for event in pygame.event.get():
+     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            holding = True
-        if event.type == pygame.MOUSEBUTTONUP:
-            holding = False
+        #if event.type == pygame.MOUSEBUTTONDOWN:
+        #    holding = True
+        #if event.type == pygame.MOUSEBUTTONUP:
+        #    holding = False
 
-        if holding:
-            slingx = cursor_rect.centerx
-            slingy = cursor_rect.centery
-            pygame.draw.line(screen,(slingcolour),player_rect.center,cursor_rect.center,5)
-
-
-    #background
-    screen.fill("white")
-
-    #cursor
-    mouse_x, mouse_y = pygame.mouse.get_pos()
-    distance = math.hypot(player_rect.centerx - mouse_x, player_rect.centery - mouse_y)
-    cursor_rect = cursor.get_rect(center=(pygame.mouse.get_pos()))
-    screen.blit(cursor,cursor_rect)
-
-    #player
-    if costume == 3:
-        player.fill("red")
-        slingcolour = "red"
-    elif costume == 2:
-        player.fill("mediumpurple")
-        slingcolour = "mediumpurple"
-    elif costume == 1:
-        player.fill("blue")
-        slingcolour = "blue"
-
-    AIRTIME = AIRTIME+1
-    frame()
-    CAMX = round(PX+(SPEEDX*-1),0)
-    CAMY = round(PY+(SPEEDY*-1),0)
-    position()
+        #if holding:
+        #    slingx = cursor_rect.centerx
+        #    slingy = cursor_rect.centery
+        #    pygame.draw.line(screen,(slingcolour),player_rect.center,cursor_rect.center,5)
 
 
-    screen.blit(player,player_rect)
+     #background
+     screen.fill("white")
 
-    ARC.clear()
-    if AIRTIME > 4:
-        while AIRTIME > 0:
-            ARC.append(PY)
+     #cursor
+     mouse_x, mouse_y = pygame.mouse.get_pos()
+     distance = math.hypot(player_rect.centerx - mouse_x, player_rect.centery - mouse_y)
+     cursor_rect = cursor.get_rect(center=(pygame.mouse.get_pos()))
+     screen.blit(cursor,cursor_rect)
 
-    pygame.display.update()
-    clock.tick(60)
+     #player
+     if costume == 3:
+         player.fill("red")
+         slingcolour = "red"
+     elif costume == 2:
+         player.fill("mediumpurple")
+         slingcolour = "mediumpurple"
+     elif costume == 1:
+         player.fill("blue")
+         slingcolour = "blue"
+
+     AIRTIME = AIRTIME+1
+     frame()
+     CAMX = round(PX+(SPEEDX*-1),0)
+     CAMY = round(PY+(SPEEDY*-1),0)
+     position()
+
+
+     screen.blit(player,player_rect)
+
+     ARC.clear()
+     if AIRTIME > 4:
+         while AIRTIME > 0:
+             ARC.append(PY)
+
+     pygame.display.update()
+     clock.tick(60)
