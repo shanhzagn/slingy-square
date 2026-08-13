@@ -29,6 +29,7 @@ def position():
     global PY
     global CAMX
     global CAMY
+    global player_rect
     player_rect = player.get_rect(center=(PX-CAMX+480,PY-CAMY+360))
 
 def changexby(x):
@@ -41,11 +42,11 @@ def changexby(x):
             PX = PX+1
             position()
             for platform in p:
-                if player.rect.colliderect(platform.rect):
+                if player_rect.colliderect(platform.rect):
                     PY = PY+1
                     position()
                     for platform in p:
-                        if player.rect.colliderect(platform.rect):
+                        if player_rect.colliderect(platform.rect):
                             PY = PY-1
                             PX = PX-1
                             SPEEDX = round((SPEEDX/2),0)
@@ -53,11 +54,11 @@ def changexby(x):
             PX = PX-1
             position()
             for platform in p:
-                if player.rect.colliderect(platform.rect):
+                if player_rect.colliderect(platform.rect):
                     PY = PY+1
                     position()
                     for platform in p:
-                        if player.rect.colliderect(platform.rect):
+                        if player_rect.colliderect(platform.rect):
                             PY = PY-1
                             PX = PX+1
                             SPEEDX = round((SPEEDX/2),0)
@@ -73,14 +74,14 @@ def changeyby(y):
             PY += 1
             position()
             for platform in p:
-                if player.rect.colliderect(p.rect):
+                if player_rect.colliderect(platform.rect):
                     PY -= 1
                     SPEEDY = 0
         if y < 0:
             PY -= 1
             position()
             for platform in p:
-                if player.rect.colliderect(p.rect):
+                if player_rect.colliderect(platform.rect):
                     costume = 1
                     AIRTIME = 0
                     PY -= 1
@@ -165,15 +166,15 @@ while True:
             pygame.quit()
             exit()
 
-        #if event.type == pygame.MOUSEBUTTONDOWN:
-        #    holding = True
-        #if event.type == pygame.MOUSEBUTTONUP:
-        #    holding = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            holding = True
+        if event.type == pygame.MOUSEBUTTONUP:
+            holding = False
 
-        #if holding:
-        #    slingx = cursor_rect.centerx
-        #    slingy = cursor_rect.centery
-        #    pygame.draw.line(screen,(slingcolour),player_rect.center,cursor_rect.center,5)
+        if holding:
+            slingx = cursor_rect.centerx
+            slingy = cursor_rect.centery
+            pygame.draw.line(screen,(slingcolour),player_rect.center,cursor_rect.center,5)
 
 
      #background
