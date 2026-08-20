@@ -104,14 +104,14 @@ def sling():
         costume = costume+1
         SPEEDX = (round((slingx/8),0))*-1
         SPEEDY = (round((slingy/8),0))*-1
-        if SPEEDX > 21:
-            SPEEDX = 22
-        if SPEEDY > 21:
-            SPEEDY = 22
-        if SPEEDX < -21:
-            SPEEDX = -22
-        if SPEEDY < -21:
-            SPEEDY = -22
+        if SPEEDX > 35:
+            SPEEDX = 36
+        if SPEEDY > 35:
+            SPEEDY = 36
+        if SPEEDX < -35:
+            SPEEDX = -36
+        if SPEEDY < -35:
+            SPEEDY = -36
 
 def frame():
     global SPEEDX
@@ -167,8 +167,16 @@ class Platform(pygame.sprite.Sprite):
 
 p = pygame.sprite.Group()
 
-p1 = Platform(-600,300,1000,100,"black")
+#border
+p1 = Platform(-600,300,4000,500,"black")
 p.add(p1)
+p2 = Platform(1600,300,500,3000,"black")
+p.add(p2)
+p3 = Platform(-1600,300,500,3000,"black")
+p.add(p3)
+
+#part 1
+
 
 while True:
     for event in pygame.event.get():
@@ -210,12 +218,6 @@ while True:
     cursor_rect = cursor.get_rect(center=(pygame.mouse.get_pos()))
     screen.blit(cursor, cursor_rect)
 
-    # sling
-    if holding:
-        slingx = cursor_rect.centerx + CAMX - 480 - PX
-        slingy = cursor_rect.centery + CAMY - 360 - PY
-        pygame.draw.line(screen, (slingcolour), player_rect.center, cursor_rect.center, 20)
-
     # blit player
     screen.blit(player, player_rect)
 
@@ -225,7 +227,11 @@ while True:
         draw_y = platform.rect.y - CAMY + 360
         screen.blit(platform.image,(draw_x,draw_y))
 
-    print(PY, SPEEDY, costume, world_rect.colliderect(p1.rect))
+    # sling
+    if holding:
+        slingx = cursor_rect.centerx + CAMX - 480 - PX
+        slingy = cursor_rect.centery + CAMY - 360 - PY
+        pygame.draw.line(screen, (slingcolour), player_rect.center, cursor_rect.center, 20)
 
     pygame.display.update()
     clock.tick(60)
