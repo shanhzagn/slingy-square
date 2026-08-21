@@ -3,8 +3,26 @@ import math
 from sys import exit
 
 #variables
-PX = -600
-PY = 0
+SPAWN_X = -600
+SPAWN_Y = 0
+PX = SPAWN_X
+PY = SPAWN_Y
+
+#playtesting
+TEST_POINTS = {
+    pygame.K_1: (-400,-2000),
+    pygame.K_2: (200,-1900),
+    #pygame.K_3: (),
+    #pygame.K_4: (),
+}
+def teleport(x,y):
+    global PX, PY, SPEEDX, SPEEDY, costume, AIRTIME
+    PX,PY = x,y
+    SPEEDX,SPEEDY = 0,0
+    costume = 1
+    AIRTIME = 0
+
+
 slingx = 0
 slingy = 0
 SPEEDY = 0
@@ -143,6 +161,7 @@ def frame():
 
 pygame.init()
 screen = pygame.display.set_mode((960,720))
+#screen = pygame.display.set_mode((1920,1440))
 pygame.display.set_caption("Slingy Square")
 clock = pygame.time.Clock()
 
@@ -168,14 +187,32 @@ class Platform(pygame.sprite.Sprite):
 p = pygame.sprite.Group()
 
 #border
+p0 = Platform(0,0,700,200,"black")
+p.add(p0)
 p1 = Platform(-600,300,4000,500,"black")
 p.add(p1)
-p2 = Platform(1600,300,500,3000,"black")
+p2 = Platform(1600,300,500,10000,"black")
 p.add(p2)
-p3 = Platform(-1600,300,500,3000,"black")
+p3 = Platform(-1600,300,500,10000,"black")
 p.add(p3)
 
-#part 1
+#level
+p4 = Platform(0,0,500,500,"black")
+p.add(p4)
+p5 = Platform(1600,-600,700,100,"black")
+p.add(p5)
+p6 = Platform(1600,-1800,3000,100,"black")
+p.add(p6)
+p7 = Platform(0,-1100,500,100,"black")
+p.add(p7)
+p8 = Platform(-400,-1500,50,900,"black")
+p.add(p8)
+p9 = Platform(-450,-1075,100,50,"black")
+p.add(p9)
+p10 = Platform(-1590,300,500,3500,"black")
+p.add(p10)
+p11 = Platform(-330,-2100,50,100,"black")
+p.add(p11)
 
 
 while True:
@@ -191,6 +228,12 @@ while True:
             if holding:
                 sling()
             holding = False
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                teleport(SPAWN_X,SPAWN_Y)
+            elif event.key in TEST_POINTS:
+                teleport(*TEST_POINTS[event.key])
 
     #background
     screen.fill("white")
