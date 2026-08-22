@@ -12,8 +12,8 @@ PY = SPAWN_Y
 TEST_POINTS = {
     pygame.K_1: (-400,-2000),
     pygame.K_2: (200,-1900),
-    #pygame.K_3: (),
-    #pygame.K_4: (),
+    pygame.K_3: (1000,-3270),
+    pygame.K_4: (200,-4470),
 }
 def teleport(x,y):
     global PX, PY, SPEEDX, SPEEDY, costume, AIRTIME
@@ -47,20 +47,12 @@ TERMINAL_VELOCITY = 22
 
 #functions
 def position():
-    global PX
-    global PY
-    global CAMX
-    global CAMY
-    global player_rect
-    global world_rect
+    global PX, PY, CAMX, CAMY, player_rect, world_rect
     player_rect = player.get_rect(center=(480,360))
     world_rect = player.get_rect(center=(PX,PY))
 
 def changexby(x):
-    global PX
-    global PY
-    global SPEEDX
-    global SPEEDY
+    global PX, PY, SPEEDX, SPEEDY
     for i in range(abs(int(x))):
         if x > 0:
             PX = PX+1
@@ -89,10 +81,7 @@ def changexby(x):
         position()
 
 def changeyby(y):
-    global PY
-    global costume
-    global AIRTIME
-    global SPEEDY
+    global PY, costume, AIRTIME, SPEEDY
     for i in range(abs(int(y))):
         if y > 0:
             PY += 1
@@ -115,9 +104,7 @@ def changeyby(y):
         position()
 
 def sling():
-    global costume
-    global SPEEDX
-    global SPEEDY
+    global costume, SPEEDX, SPEEDY
     if costume != 3:
         costume = costume+1
         SPEEDX = (round((slingx/8),0))*-1
@@ -132,12 +119,7 @@ def sling():
             SPEEDY = -36
 
 def frame():
-    global SPEEDX
-    global SPEEDY
-    global CAMX
-    global CAMY
-    global PX
-    global PY
+    global SPEEDX, SPEEDY, CAMX, CAMY, PX, PY
     #player
     if SPEEDX > 10:
         SPEEDX -= 1
@@ -161,19 +143,28 @@ def frame():
 
 pygame.init()
 screen = pygame.display.set_mode((960,720))
-#screen = pygame.display.set_mode((1920,1440))
 pygame.display.set_caption("Slingy Square")
 clock = pygame.time.Clock()
+
+#timer
+pygame.font.init()
+timer_font = pygame.font.SysFont(None, 50)
+game_won = False
+start_ticks = pygame.time.get_ticks()
+final_time = 0
 
 #player
 player = pygame.Surface((54,54))
 player.fill("blue")
 player_rect = player.get_rect(center=(0,0))
 world_rect = player.get_rect(center=(0,0))
+end = pygame.Surface((300,50))
+end.fill("darkorange")
+end_rect = end.get_rect(center=(-1300,-5050))
 
 #cursor
 cursor = pygame.Surface((12,12))
-cursor.fill("darkorange")
+cursor.fill("aqua")
 cursor_rect = cursor.get_rect(center=(0,0))
 
 #platforms
@@ -191,9 +182,9 @@ p0 = Platform(0,0,700,200,"black")
 p.add(p0)
 p1 = Platform(-600,300,4000,500,"black")
 p.add(p1)
-p2 = Platform(1600,300,500,10000,"black")
+p2 = Platform(1600,300,500,100000,"black")
 p.add(p2)
-p3 = Platform(-1600,300,500,10000,"black")
+p3 = Platform(-1600,300,500,100000,"black")
 p.add(p3)
 
 #level
@@ -213,6 +204,26 @@ p10 = Platform(-1590,300,500,3500,"black")
 p.add(p10)
 p11 = Platform(-330,-2100,50,100,"black")
 p.add(p11)
+p12 = Platform(1360,-2000,50,100,"black")
+p.add(p12)
+p13 = Platform(1360,-2500,50,100,"black")
+p.add(p13)
+p14 = Platform(1360,-3000,50,100,"black")
+p.add(p14)
+p15 = Platform(1000,-3200,200,50,"black")
+p.add(p15)
+p16 = Platform(600,-3400,300,50,"black")
+p.add(p16)
+p16 = Platform(600,-3800,300,500,"black")
+p.add(p16)
+p17 = Platform(550,-3550,300,50,"black")
+p.add(p17)
+p18 = Platform(200,-4400,300,50,"black")
+p.add(p18)
+p19 = Platform(200,-4800,300,50,"black")
+p.add(p19)
+p20 = Platform(-1300,-5000,300,50,"black")
+p.add(p20)
 
 
 while True:
@@ -229,14 +240,17 @@ while True:
                 sling()
             holding = False
 
+        #playtesting
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 teleport(SPAWN_X,SPAWN_Y)
-            elif event.key in TEST_POINTS:
-                teleport(*TEST_POINTS[event.key])
+                start_ticks = pygame.time.get_ticks()
+        #    elif event.key in TEST_POINTS:
+        #        teleport(*TEST_POINTS[event.key])
 
     #background
     screen.fill("white")
+    screen.blit(end,end_rect)
 
     #player
     if costume == 3:
@@ -255,11 +269,21 @@ while True:
     CAMY = PY
     position()
 
+    #check for reaching end
+    if not game_won and world_rect.colliderect(end_rect):
+        game_won = True
+        final_time = pygame.time.get_ticks()-start_ticks
+
     #cursor
     mouse_x, mouse_y = pygame.mouse.get_pos()
     distance = math.hypot(player_rect.centerx - mouse_x, player_rect.centery - mouse_y)
     cursor_rect = cursor.get_rect(center=(pygame.mouse.get_pos()))
     screen.blit(cursor, cursor_rect)
+
+    #draw end
+    end_draw_x = end_rect.x - CAMX + 480
+    end_draw_y = end_rect.y - CAMY + 360
+    screen.blit(end,(end_draw_x,end_draw_y))
 
     # blit player
     screen.blit(player, player_rect)
@@ -275,6 +299,17 @@ while True:
         slingx = cursor_rect.centerx + CAMX - 480 - PX
         slingy = cursor_rect.centery + CAMY - 360 - PY
         pygame.draw.line(screen, (slingcolour), player_rect.center, cursor_rect.center, 20)
+
+    #timer
+    if game_won:
+        elapsed_ms = final_time
+    else:
+        elapsed_ms = pygame.time.get_ticks()-start_ticks
+    seconds = elapsed_ms / 1000
+    timer_label = f"{seconds:.3f}" if not game_won else f"You Win! Time: {seconds:.3f}s"
+    timer_surface = timer_font.render(timer_label,True,"aqua")
+    timer_rect = timer_surface.get_rect(midtop=(480,20))
+    screen.blit(timer_surface,timer_rect)
 
     pygame.display.update()
     clock.tick(60)
